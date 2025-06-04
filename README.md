@@ -5,12 +5,11 @@
 
 <div align="center">
  
-🔭 I’m currently study in Reva University<br><br>🌱 I’m currently learning ELECTRICAL AND ELECTRONICS ENGINEERING<br>
 
 </div>
 
 Portfolio
-https://ajaylegion.github.me
+https://ajaylegion.me
 
 
 # 💻 Tech Stack:
