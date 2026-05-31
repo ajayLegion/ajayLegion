@@ -1,0 +1,479 @@
+
+MICROCONTROLLER LAB PROGRAMS (8051) 
+
+Program 1(a): Copy a block of 10 numbers
+ORG 00H
+MOV R2,#0AH
+MOV R0,#20H
+MOV R1,#50H
+NEXT: MOV A,@R0
+MOV @R1,A
+INC R0
+INC R1
+DJNZ R2,NEXT
+END
+
+Program 1(b): Exchange a block of 10 numbers
+ORG 00H
+MOV R2,#0AH
+MOV R0,#20H
+MOV R1,#50H
+NEXT: MOV A,@R0
+XCH A,@R1
+MOV @R0,A
+INC R0
+INC R1
+DJNZ R2,NEXT
+END
+
+Program 1(c): Sort numbers in ascending order
+ORG 00H
+nxtpass: MOV R3,#04H
+MOV R0,#50H
+MOV R2,#04H
+nxtcomp: MOV A,@R0
+MOV B,A
+INC R0
+MOV A,@R0
+CJNE A,B,notequal
+SJMP SKIP
+notequal: JNC SKIP
+DEC R0
+MOV @R0,A
+INC R0
+MOV @R0,B
+SKIP: DJNZ R2,nxtcomp
+DJNZ R3,nxtpass
+END
+
+Program 1(d): Find largest number
+ORG 0000H
+MOV R0,#40H
+MOV R2,#05H
+MOV 50H,#00H
+rpt: MOV A,@R0
+CJNE A,50H,here
+SJMP less
+here: JC less
+MOV 50H,A
+less: INC R0
+DJNZ R2,rpt
+END
+
+Program 2(a): Add two 8-bit numbers
+ORG 00H
+MOV A,#04H
+MOV B,#02H
+ADD A,B
+MOV R1,A
+MOV 30H,A
+END
+
+Program 2(b): Subtract two 16-bit numbers
+ORG 00H
+CLR C
+MOV A,#50H
+SUBB A,#30H
+MOV R0,A
+MOV A,#55H
+SUBB A,#35H
+MOV R1,A
+CLR A
+SUBB A,#00H
+MOV R2,A
+END
+
+Program 2(c): Bit manipulation
+ORG 00H
+MOV A,40H
+ORL A,#03H
+ANL A,#0F3H
+XRL A,#0C0H
+MOV 50H,A
+END
+
+Program 2(d): 2's complement of 16-bit number
+ORG 0000H
+MOV A,41H
+CPL A
+MOV 51H,A
+MOV A,40H
+CPL A
+INC A
+MOV 50H,A
+END
+
+Program 2(e): OR/XOR operation
+ORG 0000H
+MOV A,40H
+ANL A,#0FH
+MOV 50H,A
+MOV A,41H
+SWAP A
+ANL A,#0FH
+ORL A,50H
+XRL A,42H
+MOV 50H,A
+END
+
+Program 3(a): Binary to ASCII
+MOV DPTR,#9000H
+MOVX A,@DPTR
+MOV R0,A
+SWAP A
+MOV DPTR,#900DH
+ACALL ASCII
+MOV A,R0
+ACALL ASCII
+SJMP $
+ASCII: ANL A,#0FH
+ADD A,#30H
+MOVX @DPTR,A
+INC DPTR
+RET
+END
+
+Program 3(b): Decimal to HEX
+MOV DPTR,#9000H
+MOVX A,@DPTR
+MOV R0,A
+ANL A,#0F0H
+SWAP A
+MOV B,#0AH
+MUL AB
+MOV R1,A
+MOV A,R0
+ANL A,#0FH
+ADD A,R1
+MOVX @DPTR,A
+END
+
+Program 3(c): Decimal Up/Down Counter
+ORG 00H
+CLR A
+UP: ADD A,#01H
+DA A
+MOV P0,A
+CJNE A,#99H,UP
+DOWN: ADD A,#99H
+MOV P0,A
+DA A
+CJNE A,#00H,DOWN
+END
+
+Program 4: Serial transfer "ELECTRICAL ROCKS"
+ORG 00H
+MOV TMOD,#20H
+MOV TH1,#-3
+MOV SCON ,#50H
+SETB TR1
+AGAIN: MOV A,#'E'
+ACALL TRANS
+MOV A,#'L'
+ACALL TRANS
+MOV A,#'E'
+ACALL TRANS
+MOV A,#'C'
+ACALL TRANS
+MOV A,#'T'
+ACALL TRANS
+MOV A,#'R'
+ACALL TRANS
+MOV A,#'I'
+ACALL TRANS
+MOV A,#'C'
+ACALL TRANS
+MOV A,#'A'
+ACALL TRANS
+MOV A,#'L'
+ACALL TRANS
+MOV A,#20H
+ACALL TRANS
+MOV A,#'R'
+ACALL TRANS
+MOV A,#'O'
+ACALL TRANS
+MOV A,#'C'
+ACALL TRANS
+MOV A,#'K'
+ACALL TRANS
+MOV A,#'S'
+ACALL TRANS
+MOV A,#9
+ACALL TRANS
+AGAIN1: SJMP AGAIN1
+TRANS: MOV SBUF,A
+HERE: JNB TI,HERE
+CLR TI
+RET
+END
+
+
+
+Program 6: DAC Waveforms
+(i) Sine Wave
+
+#include <reg52.h>
+
+void main()
+{
+    unsigned char i;
+    unsigned char code table[8]={128,176,218,255,218,176,128,80};
+
+    while(1)
+    {
+        for(i=0;i<8;i++)
+            P0=table[i];
+    }
+}
+
+(ii) Square Wave
+
+#include <reg52.h>
+
+void MSDelay(unsigned int);
+
+void main()
+{
+    P0 = 0x00;
+
+    while(1)
+    {
+        P0 = 0x00;      // Logic LOW
+        MSDelay(50);
+
+        P0 = 0xFF;      // Logic HIGH
+        MSDelay(50);
+    }
+}
+
+void MSDelay(unsigned int value)
+{
+    unsigned int y;
+
+    for(y = 0; y < value; y++);
+}
+
+(iii) Triangular Wave
+
+#include <reg52.h>
+
+void main()
+{
+    unsigned int i;
+
+    P0 = 0x00;
+
+    while(1)
+    {
+        for(i = 0; i < 255; i++)
+        {
+            P0 = i;
+        }
+
+        for(i = 255; i > 0; i--)
+        {
+            P0 = i;
+        }
+    }
+}
+(iv) Ramp Wave
+
+#include <reg52.h>
+
+void main()
+{
+    unsigned int i;
+
+    P0 = 0x00;
+
+    while(1)
+    {
+        for(i = 0; i < 255; i++)
+        {
+            P0 = i;
+        }
+    }
+}
+
+(v) Rectangular Wave
+
+#include <reg52.h>
+
+void MSDelay(unsigned int);
+
+void main()
+{
+    P0 = 0x00;
+
+    while(1)
+    {
+        P0 = 0x00;      // LOW level
+        MSDelay(50);
+
+        P0 = 0xFF;      // HIGH level
+        MSDelay(100);
+    }
+}
+
+void MSDelay(unsigned int value)
+{
+    unsigned int y;
+
+    for(y = 0; y < value; y++);
+}
+
+(vi) Sawtooth Wave
+
+#include <reg52.h>
+
+void main()
+{
+    unsigned int i;
+
+    P0 = 0x00;
+
+    while(1)
+    {
+        for(i = 0; i < 255; i = i + 5)
+        {
+            P0 = i;
+        }
+
+        for(i = 255; i > 1; i--)
+        {
+            P0 = i;
+        }
+    }
+}
+
+Program 7: Stepper Motor Control
+
+
+(a) Clockwise Rotation
+
+#include <reg52.h>
+
+void MSDelay(unsigned char value);
+
+void main()
+{
+    while(1)
+    {
+        P0 = 0x66;
+        MSDelay(1);
+
+        P0 = 0xCC;
+        MSDelay(1);
+
+        P0 = 0x99;
+        MSDelay(1);
+
+        P0 = 0x33;
+        MSDelay(1);
+    }
+}
+
+void MSDelay(unsigned char value)
+{
+    unsigned int x, y;
+
+    for(x = 0; x < 500; x++);
+    for(y = 0; y < value; y++);
+}
+
+
+(b) Anticlockwise Rotation
+
+#include <reg52.h>
+
+void MSDelay(unsigned char value);
+
+void main()
+{
+    while(1)
+    {
+        P0 = 0x33;
+        MSDelay(1);
+
+        P0 = 0x99;
+        MSDelay(1);
+
+        P0 = 0xCC;
+        MSDelay(1);
+
+        P0 = 0x66;
+        MSDelay(1);
+    }
+}
+
+void MSDelay(unsigned char value)
+{
+    unsigned int x, y;
+
+    for(x = 0; x < 500; x++)
+        for(y = 0; y < value; y++);
+}
+
+
+Program 8: DC Motor Control
+
+(a) Clockwise Rotation
+
+#include <reg52.h>
+
+void MSDelay(unsigned char value);
+
+sbit enable = P0^6;
+sbit mtr_1  = P0^7;
+sbit mtr_2  = P0^4;
+
+void main()
+{
+    while(1)
+    {
+        mtr_1 = 1;
+        mtr_2 = 0;
+        MSDelay(50);
+        mtr_1 = 0;
+    }
+}
+
+void MSDelay(unsigned char value)
+{
+    unsigned int x,y;
+
+    for(x=0; x<40; x++)
+        for(y=0; y<value; y++);
+}
+
+
+(b) Anticlockwise Rotation
+
+#include <reg52.h>
+
+void MSDelay(unsigned char value);
+
+sbit enable = P0^6;
+sbit mtr_1  = P0^7;
+sbit mtr_2  = P0^4;
+
+void main()
+{
+    while(1)
+    {
+        mtr_1 = 0;
+        mtr_2 = 1;
+        MSDelay(50);
+        mtr_1 = 0;
+    }
+}
+
+void MSDelay(unsigned char value)
+{
+    unsigned int x,y;
+
+    for(x=0; x<40; x++)
+        for(y=0; y<value; y++);
+}
+
