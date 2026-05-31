@@ -3,201 +3,210 @@ MICROCONTROLLER LAB PROGRAMS (8051)
 
 Program 1(a): Copy a block of 10 numbers
 ORG 00H
-MOV R2,#0AH
-MOV R0,#20H
-MOV R1,#50H
-NEXT: MOV A,@R0
-MOV @R1,A
-INC R0
-INC R1
-DJNZ R2,NEXT
+MOV R2,#0AH        ; counter = 10
+MOV R0,#20H        ; source address
+MOV R1,#50H        ; destination address
+NEXT: MOV A,@R0    ; read from source
+MOV @R1,A          ; write to destination
+INC R0             ; next source byte
+INC R1             ; next destination byte
+DJNZ R2,NEXT       ; decrement counter and loop
 END
 
 Program 1(b): Exchange a block of 10 numbers
 ORG 00H
-MOV R2,#0AH
-MOV R0,#20H
-MOV R1,#50H
-NEXT: MOV A,@R0
-XCH A,@R1
-MOV @R0,A
-INC R0
-INC R1
-DJNZ R2,NEXT
+MOV R2,#0AH        ; counter = 10
+MOV R0,#20H        ; source address
+MOV R1,#50H        ; destination address
+NEXT: MOV A,@R0    ; read source byte
+XCH A,@R1          ; exchange with destination byte
+MOV @R0,A          ; write original dest byte to source
+INC R0             ; next source byte
+INC R1             ; next destination byte
+DJNZ R2,NEXT       ; decrement counter and loop
 END
 
 Program 1(c): Sort numbers in ascending order
 ORG 00H
-nxtpass: MOV R3,#04H
-MOV R0,#50H
-MOV R2,#04H
-nxtcomp: MOV A,@R0
-MOV B,A
-INC R0
-MOV A,@R0
-CJNE A,B,notequal
+nxtpass: MOV R3,#04H    ; number of passes
+MOV R0,#50H            ; start address of data block
+MOV R2,#04H            ; comparisons per pass
+nxtcomp: MOV A,@R0     ; load current byte
+MOV B,A                ; save current byte
+INC R0                 ; point to next byte
+MOV A,@R0              ; load next byte
+CJNE A,B,notequal      ; compare adjacent bytes
 SJMP SKIP
-notequal: JNC SKIP
+notequal: JNC SKIP     ; if current >= next, do not swap
 DEC R0
-MOV @R0,A
+MOV @R0,A              ; place smaller byte first
 INC R0
-MOV @R0,B
-SKIP: DJNZ R2,nxtcomp
-DJNZ R3,nxtpass
+MOV @R0,B              ; place larger byte next
+SKIP: DJNZ R2,nxtcomp  ; next comparison
+DJNZ R3,nxtpass        ; next pass
 END
 
 Program 1(d): Find largest number
 ORG 0000H
-MOV R0,#40H
-MOV R2,#05H
-MOV 50H,#00H
-rpt: MOV A,@R0
-CJNE A,50H,here
+MOV R0,#40H            ; start address of numbers
+MOV R2,#05H            ; number of values
+MOV 50H,#00H           ; initialize max = 0
+rpt: MOV A,@R0        ; load current value
+CJNE A,50H,here        ; if not equal, compare
 SJMP less
-here: JC less
-MOV 50H,A
-less: INC R0
-DJNZ R2,rpt
+here: JC less          ; if current < max skip
+MOV 50H,A              ; update max value
+less: INC R0           ; next value address
+DJNZ R2,rpt            ; repeat loop
 END
 
 Program 2(a): Add two 8-bit numbers
 ORG 00H
-MOV A,#04H
-MOV B,#02H
-ADD A,B
-MOV R1,A
-MOV 30H,A
+MOV A,#04H             ; operand 1
+MOV B,#02H             ; operand 2
+ADD A,B                ; A = A + B
+MOV R1,A               ; save result in R1
+MOV 30H,A              ; save result in memory
 END
 
 Program 2(b): Subtract two 16-bit numbers
 ORG 00H
-CLR C
-MOV A,#50H
-SUBB A,#30H
-MOV R0,A
-MOV A,#55H
-SUBB A,#35H
-MOV R1,A
+CLR C                  ; clear borrow
+MOV A,#50H             ; low byte minuend
+SUBB A,#30H            ; subtract low byte with borrow
+MOV R0,A               ; store low result
+MOV A,#55H             ; high byte minuend
+SUBB A,#35H            ; subtract high byte with borrow
+MOV R1,A               ; store high result
 CLR A
-SUBB A,#00H
-MOV R2,A
+SUBB A,#00H            ; final borrow flag
+MOV R2,A               ; store borrow result
 END
 
 Program 2(c): Bit manipulation
 ORG 00H
-MOV A,40H
-ORL A,#03H
-ANL A,#0F3H
-XRL A,#0C0H
-MOV 50H,A
+MOV A,40H              ; load byte from memory
+ORL A,#03H             ; set bit0 and bit1
+ANL A,#0F3H            ; clear bit4 and bit5
+XRL A,#0C0H            ; toggle bit6 and bit7
+MOV 50H,A              ; store modified byte
 END
 
 Program 2(d): 2's complement of 16-bit number
 ORG 0000H
-MOV A,41H
-CPL A
-MOV 51H,A
-MOV A,40H
-CPL A
-INC A
-MOV 50H,A
+MOV A,41H              ; load high byte
+CPL A                  ; complement high byte
+MOV 51H,A              ; save complement high byte
+MOV A,40H              ; load low byte
+CPL A                  ; complement low byte
+INC A                  ; add 1 to low byte
+MOV 50H,A              ; save result low byte
 END
 
 Program 2(e): OR/XOR operation
 ORG 0000H
-MOV A,40H
-ANL A,#0FH
-MOV 50H,A
-MOV A,41H
-SWAP A
-ANL A,#0FH
-ORL A,50H
-XRL A,42H
-MOV 50H,A
+MOV A,40H              ; first operand
+ANL A,#0FH             ; keep lower nibble
+MOV 50H,A              ; save masked nibble
+MOV A,41H              ; second operand
+SWAP A                 ; swap nibbles
+ANL A,#0FH             ; keep lower nibble
+ORL A,50H              ; OR with stored nibble
+XRL A,42H              ; XOR with memory content
+MOV 50H,A              ; store final value
 END
 
 Program 3(a): Binary to ASCII
-MOV DPTR,#9000H
-MOVX A,@DPTR
-MOV R0,A
-SWAP A
-MOV DPTR,#900DH
-ACALL ASCII
-MOV A,R0
-ACALL ASCII
-SJMP $
-ASCII: ANL A,#0FH
-ADD A,#30H
-MOVX @DPTR,A
-INC DPTR
+MOV DPTR,#9000H        ; point to input data
+MOVX A,@DPTR           ; read external byte
+MOV R0,A               ; save original byte
+SWAP A                 ; move high nibble to low nibble
+MOV DPTR,#900DH        ; point to output address
+ACALL ASCII            ; convert high nibble
+MOV A,R0               ; restore original byte
+ACALL ASCII            ; convert low nibble
+SJMP $                 ; halt here
+ASCII: ANL A,#0FH      ; isolate nibble
+ADD A,#30H             ; convert to ASCII code
+MOVX @DPTR,A           ; store ASCII character
+INC DPTR               ; advance output pointer
 RET
 END
 
 Program 3(b): Decimal to HEX
-MOV DPTR,#9000H
-MOVX A,@DPTR
-MOV R0,A
-ANL A,#0F0H
-SWAP A
-MOV B,#0AH
-MUL AB
-MOV R1,A
-MOV A,R0
-ANL A,#0FH
-ADD A,R1
-MOVX @DPTR,A
+MOV DPTR,#9000H        ; point to input
+MOVX A,@DPTR           ; read value
+MOV R0,A               ; save original value
+ANL A,#0F0H            ; isolate high nibble
+SWAP A                 ; bring high nibble down
+MOV B,#0AH             ; multiplier 10
+MUL AB                 ; convert high digit to decimal value
+MOV R1,A               ; save decimal high part
+MOV A,R0               ; restore original value
+ANL A,#0FH             ; isolate low nibble
+ADD A,R1               ; combine high and low parts
+MOVX @DPTR,A           ; store result
 END
 
 Program 3(c): Decimal Up/Down Counter
 ORG 00H
-CLR A
-UP: ADD A,#01H
-DA A
-MOV P0,A
-CJNE A,#99H,UP
-DOWN: ADD A,#99H
-MOV P0,A
-DA A
-CJNE A,#00H,DOWN
+CLR A                  ; start at 0
+UP: ADD A,#01H         ; increment count
+DA A                  ; decimal adjust
+MOV P0,A               ; output to port 0
+CJNE A,#99H,UP         ; loop until 99
+DOWN: ADD A,#99H       ; decrement count
+MOV P0,A               ; output to port 0
+DA A                  ; decimal adjust
+CJNE A,#00H,DOWN       ; loop until 0
 END
 
 Program 4: Serial transfer "ELECTRICAL ROCKS"
 ORG 00H
-MOV TMOD,#20H
-MOV TH1,#-3
-MOV SCON ,#50H
-SETB TR1
-AGAIN: MOV A,#'E'
+MOV TMOD,#20H          ; timer 1 mode 2
+MOV TH1,#-3            ; baud rate for serial port
+MOV SCON ,#50H         ; serial mode 1
+SETB TR1               ; start timer 1
+AGAIN: MOV A,#'E'      ; send E
 ACALL TRANS
-MOV A,#'L'
+MOV A,#'L'             ; send L
 ACALL TRANS
-MOV A,#'E'
+MOV A,#'E'             ; send E
 ACALL TRANS
-MOV A,#'C'
+MOV A,#'C'             ; send C
 ACALL TRANS
-MOV A,#'T'
+MOV A,#'T'             ; send T
 ACALL TRANS
-MOV A,#'R'
+MOV A,#'R'             ; send R
 ACALL TRANS
-MOV A,#'I'
+MOV A,#'I'             ; send I
 ACALL TRANS
-MOV A,#'C'
+MOV A,#'C'             ; send C
 ACALL TRANS
-MOV A,#'A'
+MOV A,#'A'             ; send A
 ACALL TRANS
-MOV A,#'L'
+MOV A,#'L'             ; send L
 ACALL TRANS
-MOV A,#20H
+MOV A,#20H             ; send space
 ACALL TRANS
-MOV A,#'R'
+MOV A,#'R'             ; send R
 ACALL TRANS
-MOV A,#'O'
+MOV A,#'O'             ; send O
 ACALL TRANS
-MOV A,#'C'
+MOV A,#'C'             ; send C
 ACALL TRANS
-MOV A,#'K'
+MOV A,#'K'             ; send K
 ACALL TRANS
-MOV A,#'S'
+MOV A,#'S'             ; send S
+ACALL TRANS
+MOV A,#9               ; send tab/newline marker
+ACALL TRANS
+AGAIN1: SJMP AGAIN1    ; infinite loop
+TRANS: MOV SBUF,A      ; transmit character
+HERE: JNB TI,HERE      ; wait until transmit complete
+CLR TI                 ; clear transmit interrupt flag
+RET
+END
 ACALL TRANS
 MOV A,#9
 ACALL TRANS
